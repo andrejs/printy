@@ -5,7 +5,7 @@
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
-        <title>Laravel</title>
+        <title>Printy API</title>
 
         <!-- Fonts -->
         <link href="https://fonts.googleapis.com/css?family=Raleway:100,600" rel="stylesheet" type="text/css">
@@ -79,15 +79,18 @@
 
             <div class="content">
                 <div class="title m-b-md">
-                    Laravel
+                    Tiny Printy API
+                </div>
+
+                <div class="m-b-md">
+                    <p>To view quick output of the API listings in JSON, click the following links below.</p>
+                    <p>To access API via all exposed endpoints please use <a href="https://www.getpostman.com">POSTMAN</a>.</p>
                 </div>
 
                 <div class="links">
-                    <a href="https://laravel.com/docs">Documentation</a>
-                    <a href="https://laracasts.com">Laracasts</a>
-                    <a href="https://laravel-news.com">News</a>
-                    <a href="https://forge.laravel.com">Forge</a>
-                    <a href="https://github.com/laravel/laravel">GitHub</a>
+                    <a href="/api/product">List products</a>
+                    <a href="/api/quote">List quotes</a>
+                    <a href="/printy-api.postman_collection.json">Download POSTMAN collection</a>
                 </div>
             </div>
         </div>
