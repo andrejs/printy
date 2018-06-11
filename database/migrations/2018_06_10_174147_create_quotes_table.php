@@ -17,6 +17,7 @@ class CreateQuotesTable extends Migration
             $table->increments('id');
             $table->integer('total');
             $table->json('products');
+            $table->char('country', 2);
             $table->timestamps();
         });
     }

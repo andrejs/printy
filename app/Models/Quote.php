@@ -21,6 +21,7 @@ class Quote extends Model
     protected $casts = [
         'id' => 'integer',
         'total' => 'integer',
-        'products' => 'array'
+        'products' => 'array',
+        'country' => 'string',
     ];
 }
