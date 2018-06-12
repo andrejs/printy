@@ -2,14 +2,18 @@
 
 namespace App\Models;
 
+use App\Services\QuoteService;
 use Illuminate\Database\Eloquent\Model;
 
 class Quote extends Model
 {
     public $table = 'quotes';
 
+    protected $attributes = [
+        'country' => QuoteService::DEFAULT_COUNTRY,
+    ];
+
     public $fillable = [
-        'total',
         'products',
     ];
 

@@ -13,6 +13,7 @@ class Product extends Model
         'type',
         'color',
         'size',
+        'price',
     ];
 
     /**
@@ -26,5 +27,6 @@ class Product extends Model
         'type' => 'string',
         'color' => 'string',
         'size' => 'size',
+        'price' => 'integer',
     ];
 }

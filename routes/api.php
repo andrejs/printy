@@ -18,7 +18,7 @@ Route::post('/product', 'ProductController@create');
 
 Route::get('/quote', 'QuoteController@index');
 Route::get('/quote/{productType}', 'QuoteController@index')->where('productType', '[a-z0-9\-]+');
-Route::post('/quote', 'QuoteController@create');
+Route::post('/quote', 'QuoteController@calculate');
 
 // Route::middleware('auth:api')->get('/user', function (Request $request) {
 //     return $request->user();
