@@ -13,10 +13,6 @@ class Quote extends Model
         'country' => QuoteService::DEFAULT_COUNTRY,
     ];
 
-    public $fillable = [
-        'products',
-    ];
-
     /**
      * The attributes that should be casted to native types.
      *
@@ -25,7 +21,16 @@ class Quote extends Model
     protected $casts = [
         'id' => 'integer',
         'total' => 'integer',
-        'products' => 'array',
         'country' => 'string',
     ];
+
+    /**
+     * Get products associated with the given quote.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function products()
+    {
+        return $this->belongsToMany(Product::class);
+    }
 }

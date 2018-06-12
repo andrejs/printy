@@ -3,11 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\CalculateQuote;
-use App\Http\Resources\QuoteCollection;
 use App\Http\Responses\JsonError;
 use App\Http\Responses\JsonSuccess;
+use App\Services\ProductQuoteService;
 use App\Services\QuoteService;
-use Illuminate\Http\Resources\Json\JsonResource;
 use App\Http\Resources\Quote as QuoteResource;
 
 class QuoteController extends Controller
@@ -15,24 +14,29 @@ class QuoteController extends Controller
     /** @var QuoteService */
     protected $quote;
 
+    /** @var ProductQuoteService */
+    protected $productQuote;
+
     /**
      * QuoteController constructor.
      *
      * @param QuoteService $quote
+     * @param ProductQuoteService $productQuoteService
      */
-    public function __construct(QuoteService $quote)
+    public function __construct(QuoteService $quote, ProductQuoteService $productQuoteService)
     {
         $this->quote = $quote;
+        $this->productQuote = $productQuoteService;
     }
 
     /**
      * List all quotes.
      *
-     * @return JsonResource
+     * @return array
      */
     public function index()
     {
-        return new QuoteCollection($this->quote->findAll());
+        return $this->quote->findAll();
     }
 
     /**
@@ -43,12 +47,13 @@ class QuoteController extends Controller
      */
     public function calculate(CalculateQuote $request)
     {
-        $quote = $this->quote->createModel()->fill($request->all());
+        $quote = $this->quote->createModel();
+        $products = $request->get('products');
 
-        if (!$this->quote->place($quote)) {
-            return new JsonError('Error occurred while creating a new quote', 500);
-        }
+        $this->quote->place($quote, $products);
 
-        return new JsonSuccess(['payload' => new QuoteResource($quote)]);
+        $products = $this->productQuote->findByQuote($quote);
+
+        return new JsonSuccess(['payload' => new QuoteResource($quote, $products)]);
     }
 }

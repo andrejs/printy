@@ -16,6 +16,10 @@ class Product extends Model
         'price',
     ];
 
+    protected $hidden = [
+        'pivot'
+    ];
+
     /**
      * The attributes that should be casted to native types.
      *
@@ -29,4 +33,14 @@ class Product extends Model
         'size' => 'size',
         'price' => 'integer',
     ];
+
+    /**
+     * Get quotes associated with the given product.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function quotes()
+    {
+        return $this->belongsToMany(Quote::class);
+    }
 }

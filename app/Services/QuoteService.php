@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Http\Responses\JsonError;
 use App\Models\Quote;
 use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Support\Facades\DB;
 
 /**
  * Class QuoteService
@@ -17,9 +18,18 @@ class QuoteService extends AbstractService
     /** @var ProductService */
     protected $product;
 
-    public function __construct(ProductService $productService)
+    /** @var ProductQuoteService */
+    protected $productQuote;
+
+    /**
+     * QuoteService constructor.
+     * @param ProductService $productService
+     * @param ProductQuoteService $productQuoteService
+     */
+    public function __construct(ProductService $productService, ProductQuoteService $productQuoteService)
     {
         $this->product = $productService;
+        $this->productQuote = $productQuoteService;
     }
 
     /**
@@ -29,7 +39,7 @@ class QuoteService extends AbstractService
      */
     public function findAll()
     {
-        return Quote::all();
+        return Quote::query()->with('products')->get();
     }
 
     /**
@@ -78,22 +88,31 @@ class QuoteService extends AbstractService
      * Calculates total price and saves to database.
      *
      * @param Quote $quote
-     * @return bool
+     * @param array $products
+     * @throws HttpResponseException
      */
-    public function place(Quote $quote)
+    public function place(Quote $quote, array $products)
     {
-        $quote->total = $this->calculate($quote->products);
+        DB::transaction(function () use ($quote, $products) {
+            $quote->total = $this->calculate($products);
 
-        $minOrderPrice = $this->getMinOrderPrice();
-        if ($quote->total < $minOrderPrice) {
-            throw new HttpResponseException(new JsonError(sprintf(
-                'Quote total price %d is below minimum of %d',
-                $quote->total,
-                $minOrderPrice
-            )), 400);
-        }
+            $minOrderPrice = $this->getMinOrderPrice();
+            if ($quote->total < $minOrderPrice) {
+                throw new HttpResponseException(new JsonError(sprintf(
+                    'Quote total price %d is below minimum of %d',
+                    $quote->total,
+                    $minOrderPrice
+                )), 400);
+            }
 
-        return $this->save($quote);
+            if (!$this->save($quote)) {
+                throw new HttpResponseException(
+                    new JsonError('Error occurred while creating a new quote', 500)
+                );
+            };
+
+            $this->productQuote->saveProductsForQuote($quote, $products);
+        });
     }
 
     /**
