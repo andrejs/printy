@@ -12,6 +12,7 @@ use Illuminate\Http\Exceptions\HttpResponseException;
 class QuoteService extends AbstractService
 {
     const DEFAULT_COUNTRY = 'US';
+    const MIN_ORDER_PRICE = 10;
 
     /** @var ProductService */
     protected $product;
@@ -47,6 +48,13 @@ class QuoteService extends AbstractService
         return Quote::query()->find($id, $columns);
     }
 
+    /**
+     * Calculate quote price base on passed $products data.
+     *
+     * @param array $products contains references to products and their quantities
+     * @return int calculated total price
+     * @throws HttpResponseException
+     */
     public function calculate($products)
     {
         $total = 0;
@@ -64,10 +72,37 @@ class QuoteService extends AbstractService
         return $total;
     }
 
+    /**
+     * Place a new quote.
+     *
+     * Calculates total price and saves to database.
+     *
+     * @param Quote $quote
+     * @return bool
+     */
     public function place(Quote $quote)
     {
         $quote->total = $this->calculate($quote->products);
 
+        $minOrderPrice = $this->getMinOrderPrice();
+        if ($quote->total < $minOrderPrice) {
+            throw new HttpResponseException(new JsonError(sprintf(
+                'Quote total price %d is below minimum of %d',
+                $quote->total,
+                $minOrderPrice
+            )), 400);
+        }
+
         return $this->save($quote);
+    }
+
+    /**
+     * Get minimum order price.
+     *
+     * @return int
+     */
+    protected function getMinOrderPrice()
+    {
+        return static::MIN_ORDER_PRICE;
     }
 }
