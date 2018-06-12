@@ -34,9 +34,11 @@ class QuoteController extends Controller
      *
      * @return array
      */
-    public function index()
+    public function index($productType = null)
     {
-        return $this->quote->findAll();
+        return $productType
+            ? $this->quote->findByProductType($productType)
+            : $this->quote->findAll();
     }
 
     /**

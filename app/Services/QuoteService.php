@@ -43,6 +43,17 @@ class QuoteService extends AbstractService
     }
 
     /**
+     * @param string $productType
+     * @return \Illuminate\Database\Eloquent\Collection|static[]
+     */
+    public function findByProductType($productType)
+    {
+        return Quote::whereHas('products', function ($query) use ($productType) {
+            $query->where(['type' => $productType]);
+        })->with('products')->get();
+    }
+
+    /**
      * @inheritdoc
      */
     public function createModel()
