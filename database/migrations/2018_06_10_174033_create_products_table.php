@@ -21,6 +21,9 @@ class CreateProductsTable extends Migration
             $table->string('size');
             $table->integer('price');
             $table->timestamps();
+
+            $table->unique(['type', 'color', 'size'], 'unique_type_color_size');
+            $table->index('type', 'index_type');
         });
     }
 

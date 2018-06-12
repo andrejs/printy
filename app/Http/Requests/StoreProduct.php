@@ -34,13 +34,14 @@ class StoreProduct extends FormRequest
             'type' => 'required|max:255',
             'color' => 'required|max:255',
             'size' => 'required|max:255',
+            'price' => 'required'
         ];
     }
 
     protected function failedValidation(Validator $validator)
     {
         throw new HttpResponseException(
-            new JsonError($validator->errors(), 422)
+            new JsonError($validator->errors()->messages(), 422)
         );
     }
 }
