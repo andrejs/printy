@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Quote extends Model
 {
-    public $table = 'products';
+    public $table = 'quotes';
 
     public $fillable = [
         'total',
