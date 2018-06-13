@@ -2,16 +2,11 @@
 
 namespace App\Models;
 
-use App\Services\QuoteService;
 use Illuminate\Database\Eloquent\Model;
 
 class Quote extends Model
 {
     public $table = 'quotes';
-
-    protected $attributes = [
-        'country' => QuoteService::DEFAULT_COUNTRY,
-    ];
 
     /**
      * The attributes that should be casted to native types.

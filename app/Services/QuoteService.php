@@ -12,7 +12,6 @@ use Illuminate\Support\Facades\DB;
  */
 class QuoteService extends AbstractService
 {
-    const DEFAULT_COUNTRY = 'US';
     const MIN_ORDER_PRICE = 10;
 
     /** @var ProductService */
@@ -21,15 +20,23 @@ class QuoteService extends AbstractService
     /** @var ProductQuoteService */
     protected $productQuote;
 
+    /** @var GeocoderService */
+    protected $geocoder;
+
     /**
      * QuoteService constructor.
      * @param ProductService $productService
      * @param ProductQuoteService $productQuoteService
+     * @param GeocoderService $geocoderService
      */
-    public function __construct(ProductService $productService, ProductQuoteService $productQuoteService)
-    {
+    public function __construct(
+        ProductService $productService,
+        ProductQuoteService $productQuoteService,
+        GeocoderService $geocoderService
+    ) {
         $this->product = $productService;
         $this->productQuote = $productQuoteService;
+        $this->geocoder = $geocoderService;
     }
 
     /**
@@ -106,6 +113,7 @@ class QuoteService extends AbstractService
     {
         DB::transaction(function () use ($quote, $products) {
             $quote->total = $this->calculate($products);
+            $quote->country = $this->geocoder->resolveCountryCode();
 
             $minOrderPrice = $this->getMinOrderPrice();
             if ($quote->total < $minOrderPrice) {
