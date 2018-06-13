@@ -85,12 +85,12 @@
                 <div class="m-b-md">
                     <p>To view quick output of the API listings in JSON, click the following links below.</p>
                     <p>To access API via all exposed endpoints please use <a href="https://www.getpostman.com">POSTMAN</a>.</p>
+                    <p>Postman collection and environment can be found in <strong>postman.zip</strong> under the project root.</p>
                 </div>
 
                 <div class="links">
                     <a href="/api/product">List products</a>
                     <a href="/api/quote">List quotes</a>
-                    <a href="/printy-api.postman_collection.json">Download POSTMAN collection</a>
                 </div>
             </div>
         </div>
