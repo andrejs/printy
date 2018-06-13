@@ -5,6 +5,8 @@ namespace App\Services;
 use App\Http\Responses\JsonError;
 use App\Models\Quote;
 use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -92,7 +94,7 @@ class QuoteService extends AbstractService
             if (!$product) {
                 throw new HttpResponseException(new JsonError(
                     sprintf('Product id %d is not found', $item['product_id'])
-                ), 404);
+                ), Response::HTTP_NOT_FOUND);
             }
             $total += $product->price * $item['quantity'];
         }
@@ -115,18 +117,25 @@ class QuoteService extends AbstractService
             $quote->total = $this->calculate($products);
             $quote->country = $this->geocoder->resolveCountryCode();
 
+            if ($this->isCountryLimitExceeded($quote)) {
+                throw new HttpResponseException(new JsonError(sprintf(
+                    'Quote limit from %s is exceeded. Please try again later.',
+                    $quote->country
+                )), Response::HTTP_TOO_MANY_REQUESTS);
+            }
+
             $minOrderPrice = $this->getMinOrderPrice();
             if ($quote->total < $minOrderPrice) {
                 throw new HttpResponseException(new JsonError(sprintf(
                     'Quote total price %d is below minimum of %d',
                     $quote->total,
                     $minOrderPrice
-                )), 400);
+                )), Response::HTTP_BAD_REQUEST);
             }
 
             if (!$this->save($quote)) {
                 throw new HttpResponseException(
-                    new JsonError('Error occurred while creating a new quote', 500)
+                    new JsonError('Error occurred while creating a new quote')
                 );
             };
 
@@ -142,5 +151,24 @@ class QuoteService extends AbstractService
     protected function getMinOrderPrice()
     {
         return static::MIN_ORDER_PRICE;
+    }
+
+    /**
+     * @param Quote $quote
+     * @return bool
+     */
+    protected function isCountryLimitExceeded(Quote $quote)
+    {
+        $key = 'quote-country-rate-limit';
+        $limit = config('custom.rate_limiter.limit', 1);
+        $period = config('custom.rate_limiter.period', 1);
+
+        if (Cache::has($key) && Cache::get($key) >= $limit) {
+            return true;
+        }
+
+        Cache::increment($key, $period);
+
+        return false;
     }
 }

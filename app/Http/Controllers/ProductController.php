@@ -9,6 +9,7 @@ use App\Http\Responses\JsonSuccess;
 use App\Services\ProductService;
 use Illuminate\Http\Resources\Json\JsonResource;
 use App\Http\Resources\Product as ProductResource;
+use Illuminate\Http\Response;
 
 /**
  * Class ProductController
@@ -53,13 +54,16 @@ class ProductController extends Controller
         );
 
         if ($product->count()) {
-            return new JsonError('Product with given type, color and size already exists', 409);
+            return new JsonError(
+                'Product with given type, color and size already exists',
+                Response::HTTP_CONFLICT
+            );
         }
 
         $product = $this->product->createModel()->fill($request->all());
 
         if (!$this->product->save($product)) {
-            return new JsonError('Error occurred while creating a new product', 500);
+            return new JsonError('Error occurred while creating a new product');
         }
 
         return new JsonSuccess(['payload' => new ProductResource($product)]);

@@ -7,6 +7,7 @@ use App\Rules\IsProductQuantity;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Http\Response;
 
 /**
  * Class CalculateQuote
@@ -38,7 +39,7 @@ class CalculateQuote extends FormRequest
     protected function failedValidation(Validator $validator)
     {
         throw new HttpResponseException(
-            new JsonError($validator->errors()->messages(), 422)
+            new JsonError($validator->errors()->messages(), Response::HTTP_UNPROCESSABLE_ENTITY)
         );
     }
 }

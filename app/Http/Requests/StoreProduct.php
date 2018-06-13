@@ -6,6 +6,7 @@ use App\Http\Responses\JsonError;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Http\Response;
 
 /**
  * Class StoreProduct
@@ -41,7 +42,7 @@ class StoreProduct extends FormRequest
     protected function failedValidation(Validator $validator)
     {
         throw new HttpResponseException(
-            new JsonError($validator->errors()->messages(), 422)
+            new JsonError($validator->errors()->messages(), Response::HTTP_UNPROCESSABLE_ENTITY)
         );
     }
 }
