@@ -1,5 +1,5 @@
-os:
-  - linux
+dist: trusty
+sudo: false
 
 language: php
 
@@ -16,7 +16,7 @@ before_install:
 before_script:
   - composer self-update
   - composer install --no-interaction
-  - cp .env.travis .env
+  - cp .env.travis .env.testing
 
 script:
   - vendor/bin/phpunit --coverage-text
