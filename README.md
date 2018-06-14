@@ -2,6 +2,8 @@
 
 This tiny Printy API exposes several endpoints to create, list products and fetch price quotes. API supports client geocoding and request rate limiting for quote creation.
 
+[![Build Status](https://travis-ci.org/andrejs/printy.svg?branch=develop)](https://travis-ci.org/andrejs/printy)
+
 # Product endpoints
 
 | Endpoint | Description |
