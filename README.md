@@ -42,6 +42,7 @@ databases:
 * ``cd <local folder>``
 * ``homestead up && homestead ssh``
 * ``cd ./printy/``
+* ``composer install``
 * ``php artisan migrate:refresh``
 * ``php artisan db:seed``
 
