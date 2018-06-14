@@ -24,9 +24,9 @@ abstract class AbstractService
     /**
      * Find model by given $id.
      *
-     * @param int $id
+     * @param mixed $id
      * @param array $columns
-     * @return \Illuminate\Database\Eloquent\Collection|\Illuminate\Database\Eloquent\Model|null|static|static[]
+     * @return \Illuminate\Database\Eloquent\Collection|\Illuminate\Database\Eloquent\Model|null
      */
     abstract public function find($id, $columns = ['*']);
 

@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Http\Responses\JsonError;
 use App\Models\Quote;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Cache;
@@ -81,26 +82,16 @@ class QuoteService extends AbstractService
     /**
      * Calculate quote price base on passed $products data.
      *
-     * @param array $products contains references to products and their quantities
+     * @param array $productRequest contains references to products and their quantities
      * @return int calculated total price
      * @throws HttpResponseException
      */
-    public function calculate($products)
+    public function calculate($productRequest)
     {
-        $total = 0;
+        $quantities = $this->mapProductIdToQuantity($productRequest);
+        $products = $this->getProductPrices(array_keys($quantities));
 
-        foreach ($products as $item) {
-            $product = $this->product->find($item['product_id'], ['price']);
-            if (!$product) {
-                throw new HttpResponseException(new JsonError(
-                    sprintf('Product id %d is not found', $item['product_id']),
-                    Response::HTTP_BAD_REQUEST
-                ));
-            }
-            $total += $product->price * $item['quantity'];
-        }
-
-        return $total;
+        return $this->multiply($products, $quantities);
     }
 
     /**
@@ -109,13 +100,13 @@ class QuoteService extends AbstractService
      * Calculates total price and saves to database.
      *
      * @param Quote $quote
-     * @param array $products
+     * @param array $productRequest contains references to products and their quantities
      * @throws HttpResponseException
      */
-    public function place(Quote $quote, array $products)
+    public function place(Quote $quote, array $productRequest)
     {
-        DB::transaction(function () use ($quote, $products) {
-            $quote->total = $this->calculate($products);
+        DB::transaction(function () use ($quote, $productRequest) {
+            $quote->total = $this->calculate($productRequest);
             $quote->country = $this->geocoder->resolveCountryCode();
 
             if ($this->isCountryLimitExceeded($quote)) {
@@ -140,7 +131,7 @@ class QuoteService extends AbstractService
                 );
             };
 
-            $this->productQuote->saveProductsForQuote($quote, $products);
+            $this->productQuote->saveProductsForQuote($quote, $productRequest);
         });
     }
 
@@ -171,5 +162,49 @@ class QuoteService extends AbstractService
         Cache::increment($key, $period);
 
         return false;
+    }
+
+    protected function mapProductIdToQuantity($productRequest)
+    {
+        $map = [];
+
+        foreach ($productRequest as $item) {
+            $map[$item['product_id']] = $item['quantity'];
+        }
+
+        return $map;
+    }
+
+    /**
+     * @param mixed $ids
+     * @return \Illuminate\Database\Eloquent\Collection|\Illuminate\Database\Eloquent\Model|null|static|static[]
+     */
+    protected function getProductPrices($ids)
+    {
+        $products = $this->product->findProductPrices($ids);
+        if (!$products) {
+            throw new HttpResponseException(new JsonError(
+                'At least one of requested products is not found',
+                Response::HTTP_BAD_REQUEST
+            ));
+        }
+
+        return $products;
+    }
+
+    /**
+     * @param Collection $products
+     * @param array $quantities
+     * @return int
+     */
+    protected function multiply($products, $quantities)
+    {
+        $total = 0;
+
+        foreach ($products as $product) {
+            $total += $product->price * $quantities[$product->id];
+        }
+
+        return $total;
     }
 }

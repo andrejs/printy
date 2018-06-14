@@ -51,4 +51,13 @@ class ProductService extends AbstractService
     {
         return Product::query()->find($id, $columns);
     }
+
+    /**
+     * @param mixed $id
+     * @return \Illuminate\Database\Eloquent\Collection|mixed|static[]
+     */
+    public function findProductPrices($id)
+    {
+        return $this->find($id, ['id', 'price']);
+    }
 }
