@@ -30,9 +30,9 @@ class ProductService extends AbstractService
     public function findByProperties($type, $color, $size)
     {
         return Product::query()->where([
-            ['type', '=', $type],
-            ['color', '=', $color],
-            ['size', '=', $size],
+            ['type', $type],
+            ['color', $color],
+            ['size', $size],
         ])->get();
     }
 

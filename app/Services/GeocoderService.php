@@ -59,6 +59,10 @@ class GeocoderService
      */
     protected function geocode($ip)
     {
+        if (!config('custom.geocoder.enabled')) {
+            return null;
+        }
+
         $url = config('custom.geocoder.url') . '/' . $ip;
 
         return json_decode(file_get_contents($url), true);

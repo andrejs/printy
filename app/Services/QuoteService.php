@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\DB;
  */
 class QuoteService extends AbstractService
 {
-    const MIN_ORDER_PRICE = 10;
+    const DEFAULT_MIN_ORDER_PRICE = 1;
 
     /** @var ProductService */
     protected $product;
@@ -93,8 +93,9 @@ class QuoteService extends AbstractService
             $product = $this->product->find($item['product_id'], ['price']);
             if (!$product) {
                 throw new HttpResponseException(new JsonError(
-                    sprintf('Product id %d is not found', $item['product_id'])
-                ), Response::HTTP_NOT_FOUND);
+                    sprintf('Product id %d is not found', $item['product_id']),
+                    Response::HTTP_BAD_REQUEST
+                ));
             }
             $total += $product->price * $item['quantity'];
         }
@@ -121,7 +122,7 @@ class QuoteService extends AbstractService
                 throw new HttpResponseException(new JsonError(sprintf(
                     'Quote limit from %s is exceeded. Please try again later.',
                     $quote->country
-                )), Response::HTTP_TOO_MANY_REQUESTS);
+                ), Response::HTTP_TOO_MANY_REQUESTS));
             }
 
             $minOrderPrice = $this->getMinOrderPrice();
@@ -130,7 +131,7 @@ class QuoteService extends AbstractService
                     'Quote total price %d is below minimum of %d',
                     $quote->total,
                     $minOrderPrice
-                )), Response::HTTP_BAD_REQUEST);
+                ), Response::HTTP_BAD_REQUEST));
             }
 
             if (!$this->save($quote)) {
@@ -150,7 +151,7 @@ class QuoteService extends AbstractService
      */
     protected function getMinOrderPrice()
     {
-        return static::MIN_ORDER_PRICE;
+        return config('custom.quote.min_order_price', static::DEFAULT_MIN_ORDER_PRICE);
     }
 
     /**
