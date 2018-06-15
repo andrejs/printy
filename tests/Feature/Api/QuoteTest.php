@@ -56,15 +56,23 @@ class QuoteTest extends TestCase
         config(['custom.rate_limiter.period' => 1]);
 
         $products = factory(Product::class, 2)->create();
+        $requestData = $this->generateRequestData($products);
 
-        $response = $this->post($this->endpoint, $this->generateRequestData($products));
+        $response = $this->post($this->endpoint, $requestData);
         $response
             ->assertStatus(200)
             ->assertJson([
                 'success' => true,
             ]);
 
-        $response = $this->post($this->endpoint, $this->generateRequestData($products));
+        $this->call('POST', $this->endpoint, $requestData, [], [], ['REMOTE_ADDR' => '37.120.31.238']);
+        $response
+            ->assertStatus(200)
+            ->assertJson([
+                'success' => true,
+            ]);
+
+        $response = $this->post($this->endpoint, $requestData);
         $response
             ->assertStatus(429)
             ->assertJson([

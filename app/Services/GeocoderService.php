@@ -22,7 +22,7 @@ class GeocoderService
      */
     public function resolveCountryCode()
     {
-        $clientIp = config('custom.geocoder.emulate_client_ip') ?: Request::ip();
+        $clientIp = Request::ip();
         $cacheKey = $this->buildCacheKey($clientIp);
 
         if (Cache::has($cacheKey)) {
@@ -31,7 +31,7 @@ class GeocoderService
 
         $countryCode = $this->getCountryCode(
             $this->geocode($clientIp),
-            static::DEFAULT_COUNTRY
+            $this->getDefaultCountry()
         );
 
         $ttl = config('custom.geocoder.cache_ttl', static::DEFAULT_CACHE_TTL);
@@ -76,5 +76,10 @@ class GeocoderService
     protected function getCountryCode($response, $default = null)
     {
         return !empty($response['countryCode']) ? $response['countryCode'] : $default;
+    }
+
+    protected function getDefaultCountry()
+    {
+        return config('custom.geocoder.default_country') ?: static::DEFAULT_COUNTRY;
     }
 }

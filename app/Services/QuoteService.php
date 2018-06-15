@@ -106,15 +106,16 @@ class QuoteService extends AbstractService
     public function place(Quote $quote, array $productRequest)
     {
         DB::transaction(function () use ($quote, $productRequest) {
-            $quote->total = $this->calculate($productRequest);
             $quote->country = $this->geocoder->resolveCountryCode();
 
-            if ($this->isCountryLimitExceeded($quote)) {
+            if ($this->isCountryLimitExceeded($quote->country)) {
                 throw new HttpResponseException(new JsonError(sprintf(
                     'Quote limit from %s is exceeded. Please try again later.',
                     $quote->country
                 ), Response::HTTP_TOO_MANY_REQUESTS));
             }
+
+            $quote->total = $this->calculate($productRequest);
 
             $minOrderPrice = $this->getMinOrderPrice();
             if ($quote->total < $minOrderPrice) {
@@ -146,12 +147,12 @@ class QuoteService extends AbstractService
     }
 
     /**
-     * @param Quote $quote
+     * @param string $country
      * @return bool
      */
-    protected function isCountryLimitExceeded(Quote $quote)
+    protected function isCountryLimitExceeded($country)
     {
-        $key = 'quote-country-rate-limit';
+        $key = 'quote-country-rate-limit-' . $country;
         $limit = config('custom.rate_limiter.limit', 1);
         $period = config('custom.rate_limiter.period', 1);
 

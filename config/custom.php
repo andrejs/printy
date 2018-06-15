@@ -5,8 +5,7 @@ return [
         'enabled' => true,
         'url' => 'http://ip-api.com/json',
         'cache_ttl' => 60, // minutes
-        // useful for testing inside of VM
-        'emulate_client_ip' => '37.120.31.238',
+        'default_country' => 'US',
     ],
     'rate_limiter' => [
         'limit' => 1,  // requests

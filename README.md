@@ -23,14 +23,15 @@ All requests with payload examples are provided in POSTMAN collection ``postman.
 
 # Deployment
 
-It is recommended to run the API via Laravel Homestead environment.
+Laravel Homestead can be used to deploy the app locally:
 
-* clone repository into desired workspace location
+* clone repository into desired workspace location, that will result in ``printy`` subdir created:
+  - ``cd <workspace>``
   - ``git clone https://github.com/andrejs/printy.git``
 * edit ``Homestead.yaml`` in your homestead repo and add:
 ```
 folders:
-    - map: <local folder>/printy
+    - map: <workspace>/printy
       to: /home/vagrant/printy
 
 sites:
@@ -41,14 +42,14 @@ databases:
     - printy
     - testing
 ```
-* ``cd <local folder>``
+* ``cd <workspace>/printy``
 * ``homestead up && homestead ssh``
 * ``cd ./printy/``
 * ``composer install``
 * ``php artisan migrate:refresh``
 * ``php artisan db:seed``
 
-Replace ``<local folder>`` with printy local git repo location.
+Replace ``<workspace>`` with parent directory of ``printy``.
 
 # Config
 
@@ -61,7 +62,10 @@ Alternatively point browser to http://printy.vm to see welcome page and browse `
 
 # Tests
 
-* go to project folder
-* ``homestead ssh``
-* ``cd ./printy/``
-* ``./vendor/bin/phpunit``
+To run phpunit tests:
+```
+cd <workspace>/printy
+homestead ssh
+cd ./printy/
+./vendor/bin/phpunit
+```
