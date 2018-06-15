@@ -36,7 +36,7 @@ class QuoteTest extends TestCase
             ]);
     }
 
-    public function testCreateQuoteNonExistantProduct()
+    public function testCreateQuoteNonExistentProduct()
     {
         $product = factory(Product::class)->make();
         $product->id = 9999;

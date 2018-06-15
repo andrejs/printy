@@ -49,6 +49,20 @@ class ProductTest extends TestCase
             ]);
     }
 
+    public function testAddProductWithFailedValidation()
+    {
+        $data = factory(Product::class)->raw();
+        unset($data['price']);
+
+        $response = $this->postJson($this->endpoint, $data);
+
+        $response
+            ->assertStatus(422)
+            ->assertJson([
+                'success' => false,
+            ]);
+    }
+
     public function testAddProductConstraintViolation()
     {
         $data = factory(Product::class)->raw();
